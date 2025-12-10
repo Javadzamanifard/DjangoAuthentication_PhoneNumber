@@ -7,7 +7,7 @@ KAVENEGARAPI = env.str('KAVENEGARAPI')
 SENDER = env.str('SENDER')
 
 
-def send_sms(receptor, message):
+def send_sms(receptor, otp):
     """
     ارسال پیامک از طریق کاوه‌نگار
     """
@@ -16,7 +16,7 @@ def send_sms(receptor, message):
         params = {
             'sender': SENDER,  
             'receptor': receptor,  
-            'message': message
+            'message': f'کد تایید شما: {otp}',
         }
         response = api.sms_send(params)
         return True
