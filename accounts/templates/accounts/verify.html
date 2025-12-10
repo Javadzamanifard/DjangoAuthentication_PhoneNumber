@@ -1,0 +1,29 @@
+{% extends '_base.html' %}
+{% load static %}
+{% block title %}تأیید کد{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow border-0">
+            <div class="card-header bg-success text-white text-center">
+                <h4 class="mb-0">تأیید کد</h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted text-center">کد تأیید به شماره <strong>{{ phone_number }}</strong> ارسال شد.</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="otp" class="form-label">کد تأیید:</label>
+                        <input type="text" class="form-control" id="otp" name="otp" placeholder="کد ۶ رقمی" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">تأیید کد</button>
+                </form>
+                <div class="mt-3 text-center">
+                    <a href="{% url 'accounts:resend_otp' %}" class="btn btn-outline-secondary btn-sm">ارسال مجدد کد</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

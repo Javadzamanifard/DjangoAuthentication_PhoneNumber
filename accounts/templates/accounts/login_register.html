@@ -1,0 +1,29 @@
+{% extends '_base.html' %}
+{% load static %}
+{% block title %}ورود یا ثبت نام{% endblock %}
+
+{% block CSS %}
+<link href="{% static 'css/accounts.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow border-0">
+            <div class="card-header bg-primary text-white text-center">
+                <h4 class="mb-0">ورود یا ثبت نام</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="phone_number" class="form-label">شماره موبایل:</label>
+                        <input type="tel" class="form-control" id="phone_number" name="phone_number" placeholder="09123456789" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">ارسال کد تأیید</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
