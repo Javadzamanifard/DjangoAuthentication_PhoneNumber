@@ -54,15 +54,18 @@ def verify(request):
             messages.error(request, 'کد تایید منقضی شده است دوباره تلاش کنید')
             return redirect('accounts:resend_otp')
         
-        if code != user.otp_code:
+        if code == user.otp_code:
+            user.is_phone_verified = True
+            user.otp_code = None
+            user.otp_expiry = None
+            user.save()
+            login(request, user)
+            if 'phone_number' in request.session:
+                del request.session['phone_number']
+        else:
             messages.error(request, 'کد تایید صحیح نیست.')
             return render(request, 'accounts/verify.html', {'phone_number': phone_number})
         
-        user.is_phone_verified = True
-        if 'phone_number' in request.session:
-            del request.session['phone_number']
-        user.save()
-        login(request, user)
         messages.success(request, "ورود موفقیت‌آمیز بود.")
         return redirect('accounts:home') 
     return render(request, 'accounts/verify.html')
