@@ -54,7 +54,7 @@ def verify(request):
         attempts = request.session.get('attempts', 0)
         if attempts >= MAX_ATTEMPT:
             messages.error(request, 'تعداد تلاش‌ها بیش از حد مجاز است. لطفاً دوباره شروع کنید!')
-            return redirect('accounts:login_signup')
+            return redirect('accounts:login_or_signup')
         
         if timezone.now() > user.otp_expiry:
             messages.error(request, 'کد تایید منقضی شده است دوباره تلاش کنید')
