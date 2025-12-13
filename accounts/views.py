@@ -24,6 +24,7 @@ def login_signup_view(request):
             send_sms(phone_number, otp)
             messages.success(request, "کد تایید ارسال شد.")
             request.session['phone_number'] = phone_number
+            request.session['attempts'] = 0
             return redirect('accounts:verify')
         except Exception as e:
             messages.error(request, "خطا در ارسال پیامک.")
@@ -32,6 +33,7 @@ def login_signup_view(request):
 
 
 def verify(request):
+    MAX_ATTEMPT = 3
     phone_number = request.session.get('phone_number')
     if not phone_number:
         messages.error(request, 'لطفا شماره همراه خود را مجدداً وارد کنید.')
@@ -45,10 +47,14 @@ def verify(request):
     
     if request.method == 'POST':
         code = request.POST.get('otp')
-        
         if not code:
             messages.error(request, "کد تایید را وارد کنید.")
             return redirect('accounts:verify')
+        
+        attempts = request.session.get('attempts', 0)
+        if attempts >= MAX_ATTEMPT:
+            messages.error(request, 'تعداد تلاش‌ها بیش از حد مجاز است. لطفاً دوباره شروع کنید!')
+            return redirect('accounts:login_signup')
         
         if timezone.now() > user.otp_expiry:
             messages.error(request, 'کد تایید منقضی شده است دوباره تلاش کنید')
@@ -62,7 +68,13 @@ def verify(request):
             login(request, user)
             if 'phone_number' in request.session:
                 del request.session['phone_number']
+            if 'attempts' in request.session:
+                del request.session['attempts']
+            # 2
+            # request.session.pop('phone_number', None)
+            # request.session.pop('attempts', None)
         else:
+            request.session['attempts'] = attempts + 1
             messages.error(request, 'کد تایید صحیح نیست.')
             return render(request, 'accounts/verify.html', {'phone_number': phone_number})
         
@@ -79,13 +91,12 @@ def resend_otp(request):
         messages.error(request, 'کاربر نامعتبر.')
         return redirect('accounts:login_signup')
     
-    otp = user.otp_generate()
-    
     if user.otp_expiry and user.otp_expiry > timezone.now():
         minutes_left = (user.otp_expiry - timezone.now()).seconds // 60
         messages.warning(request, f"لطفاً صبر کنید. کد جدید تنها {minutes_left} دقیقه دیگر قابل ارسال است.")
         return redirect('accounts:verify')
     
+    otp = user.otp_generate()
     success = send_sms(phone_number, otp)
     if success:
         messages.success(request, f'کد تایید جدید به شماره {phone_number} ارسال شد.')
